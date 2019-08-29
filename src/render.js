@@ -16,7 +16,7 @@ const Entity = styled.div`
 const StyledPlayer = styled(Entity)`
   border-radius: 50%;
   background-color: darkred;
-  transition-duration: 250ms;
+  transition-duration: 25ms;
   transition-timing-function: linear;
   transition-property: left, top, transform;
 `;

@@ -2,23 +2,39 @@ import React, { useState, useEffect, useRef, useReducer } from "react";
 import styled from "styled-components";
 
 import Render from "./render";
-import { getGameState } from "./logic";
+import Logic from "./logic";
 
 const GameWrapper = styled.div`
   position: relative;
   height: 100%;
-  background-color: rgba(10, 0, 0, 0.6);
+  background-color: rgb(0, 50, 0);
 `;
 
-const Game = () => {
-  const [gameData, setGameData] = useReducer((_, data) => data);
+const { getGameState } = new Logic();
+const fps = 1000/30;
 
+const Game = () => {
+  const [gameData, updateGameData] = useReducer(() => {
+    return { ...getGameState() };
+  });
+
+  const raf = cb => {
+    requestAnimationFrame(() => {
+      cb();
+      raf(cb);
+    });
+  };
+
+  // /*
   useEffect(() => {
-    setInterval(() => {
-      const gameState = getGameState();
-      setGameData({...gameState});
-    }, 250);
+    raf(updateGameData);
   }, []);
+  // */
+  /*
+  useEffect(() => {
+    setInterval(updateGameData, fps);
+  }, []);
+  // */
 
   return (
     <GameWrapper>

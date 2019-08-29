@@ -75,6 +75,8 @@ const pollStates = {
 };
 function poll(action) {
   if(!pollStates[action]) throw Error("No such poll action", action);
+  // return a queue?
+  // to prevent missed actions
   return pollStates[action].getValue();
 }
 

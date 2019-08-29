@@ -3,6 +3,7 @@ import { map, mapTo, tap, share } from "rxjs/operators";
 
 import { ACTIONS, poll, addActionListener } from "./input";
 
+export default function() {
 const random = chance => Math.random() <= chance;
 const fiftyfifty = () => random(0.5);
 
@@ -15,19 +16,14 @@ const data = {
     vy: 0,
     vz: 0,
     vmax: 4,
-    acceleration: 3,
-    deceleration: 2,
-    jumpSpeed: 40,
-    jumpTime: 100,
-    fallSpeed: 40/3,
-    width: 5,
-    height: 5,
-  },
-  ground: {
-    x: 0,
-    y: (100 - 20),
-    width: 100,
-    height: 20,
+    acceleration: 0.5,
+    deceleration: 1,
+    jumpSpeed: 4,
+    jumpTime: 300,
+    isJumping: false,
+    fallSpeed: 20/3,
+    width: 15,
+    height: 15,
   },
   map: {
     width: 100,
@@ -39,10 +35,18 @@ const { player } = data;
 addActionListener(
   ACTIONS.JUMP,
   () => {
-    player.vz = player.jumpSpeed;
+    const { player } = data;
+    const { vz, jumpSpeed, isJumping, jumpTime } = player;
+
+    if(isJumping) return;
+    if(vz < 0) return; // isFalling
+
+    player.vz = jumpSpeed;
+    player.isJumping = true;
     setTimeout(() => {
       player.vz = 0;
-    }, player.jumpTime);
+      player.isJumping = false;
+    }, jumpTime);
   }
 );
 
@@ -54,26 +58,17 @@ const movePlayer = () => {
   player.z += player.vz;
 };
 const applyGravity = () => {
-  const { player, ground } = data;
-  const { y, fallSpeed } = player;
-  const { y: gy } = ground;
-  if(y < gy)
-    if(y + fallSpeed > gy)
-	player.y = gy;
-    else
-      player.y += fallSpeed;
-}
-/*
-const applyGravity = () => {
   const { player } = data;
-  const { z, fallSpeed } = player;
+  const { z, fallSpeed, isJumping } = player;
+
+  if(isJumping) return;
+
   if(z > 0)
     if(z - fallSpeed < 0)
 	player.z = 0;
     else
       player.z -= fallSpeed;
 }
-*/
 const applyFriction = () => {
   const { player } = data;
   const { vx, vy, deceleration } = player;
@@ -153,11 +148,13 @@ const gameState = new BehaviorSubject();
 gameloopStream.pipe(
   mapTo(data),
 ).subscribe(gameState)
-export function getGameState() {
-  return gameState.getValue();  
-}
 
-export function gameloop(cb) {
-  gameloopStream.subscribe(() => cb(data));
+return {
+  getGameState() {
+    return gameState.getValue();  
+  },
+  gameloop(cb) {
+    gameloopStream.subscribe(() => cb(data));
+  }
+};
 }
-
