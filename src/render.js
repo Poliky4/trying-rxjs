@@ -5,67 +5,92 @@ const GameDiv = styled.div`
   position: relative;
   overflow: hidden;
   height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 `;
 
-const Entity = styled.div`
-  position: absolute;
-  width: ${({width}) => width}vmin;
-  height: ${({height}) => height}vmin;
-`;
+const Entity = styled.div``;
 
 const StyledPlayer = styled(Entity)`
   border-radius: 50%;
   background-color: darkred;
-  transition-duration: 25ms;
-  transition-timing-function: linear;
-  transition-property: left, top, transform;
+  transition-duration:; 25ms;
+  transition-timing-function:; linear;
+  transition-property:; left, top, transform;
 `;
 const StyledShadow = styled(StyledPlayer)`
   background-color: rgba(0, 0, 0, 0.2);
   box-shadow: 0 0 40px rgba(0, 0, 0, 0.2);
 `;
-const Shadow = (({style, z, ...props}) => {
-  const zz = (z/1000);
+const Shadow = (({width, height, x, y, z}) => {
+  const cz = (z/1000);
   return (
     <StyledShadow
       style={{
-        ...style,
+	width: `${width}vmin`,
+	height: `${height}vmin`,
         transform: `
-          translate(-60%, 90%)
-	  scale(${0.4 + zz})
+	  scale(${0.4 + cz})
+          translate(calc(${
+	    -60
+	  }% + ${
+	    x
+	  }vw), calc(${
+	    90
+	  }% + ${
+            y
+	  }vh))
         `,
       }}
-      {...props}
     />
   );
 });
 const Player = (player => {
-  const { x, y, z, ...props } = player;
-  const zx = z * 0.5;
-  const zy = z * 3;
+  const {
+    width,
+    height,
+    x,
+    y,
+    z,
+  } = player;
+  const zx = z * 0.25;
+  const zy = z * 1.5;
+  const cx = x - 50;
+  const cy = y - 50;
+
   return (
     <>
       <Shadow
-        style={{
-          left: `${x}%`,
-          top: `${y}%`,
-        }}
-        {...player}
+        x={cx}
+        y={cy}
+        z={z}
       />
       <StyledPlayer 
         style={{
-          left: `${x}%`,
-          top: `${y}%`,
-          transform: `translate(${-50 + zx}%, ${50 - zy}%)`,
+	  width: `${width}vmin`,
+	  height: `${height}vmin`,
+          transform: `translate(calc(${
+	    -50 + zx
+	  }% + ${
+	    cx
+	  }vw), calc(${
+	    50 - zy
+	  }% + ${
+            cy
+	  }vh))`,
         }}
-        {...player}
-      />
+      >
+      </StyledPlayer>
     </>
   );
 });
 
 const p = num => num.toFixed(0);
 const StyledInfo = styled.div`
+  position: absolute;
+  top: 0;
+  left: 0;
   display: inline-block;
   margin: 0.5rem;
   padding: 0.5rem;
